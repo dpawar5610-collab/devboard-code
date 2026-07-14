@@ -1,5 +1,5 @@
 # Stage 1 — build the app
-FROM dhi.io/node:26-dev AS build
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -15,15 +15,15 @@ COPY . .
 RUN npm run build
 
 # Stage 2 — distroless runtime (minimal, secure)
-FROM dhi.io/node:26
+FROM alpine:3.20
 
 WORKDIR /app
 
 # Copy built files from builder
-COPY --from=build /app/dist ./dist
+COPY --from=builder /app/dist ./dist
 
 # Copy all node_modules from builder (includes vite)
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=builder /app/node_modules ./node_modules
 
 COPY vite.preview.config.js ./vite.config.js
 
